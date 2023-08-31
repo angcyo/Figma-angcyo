@@ -23,13 +23,17 @@
       const newTexts = [];
       texts.forEach((text, index) => {
         //文本是否包含过滤内容
-        if (text.match(reg)) {
+        if (text && text.match(reg)) {
           //包含过滤内容，将过滤内容替换为空
           newTexts.push(text);
         }
       });
 
       document.getElementById("text").innerHTML = newTexts.join("\n\n");
+      //选中所有文本
+      //document.getElementById("text").select();
+      //设置按钮文本
+      document.getElementById("extractText").innerText = `${newTexts.length}`;
     }
   };
 </script>

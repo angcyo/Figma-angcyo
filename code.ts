@@ -26,11 +26,32 @@ figma.ui.onmessage = (msg) => {
 
 //获取选中节点的文本
 function getSelectedNodesText() {
-  const selectedTexts = figma.currentPage.selection.filter(
-    (node) => node.type === "TEXT"
-  );
-  const texts = selectedTexts.map((node) => (node as TextNode).characters);
+  const nodes: SceneNode[] = [];
+  traverse(figma.currentPage.selection, (node) => {
+    nodes.push(node);
+  });
+
+  const texts = nodes.map((node) => (node as TextNode).characters);
   console.log("提取到的文本↓");
   console.log(texts);
   figma.ui.postMessage({ type: "selected-text", texts });
+}
+
+// 递归获取所有节点
+function traverse(
+  nodes: ReadonlyArray<SceneNode>,
+  callback: (node: SceneNode) => void
+) {
+  nodes.forEach((node) => {
+    traverseNode(node, callback);
+  });
+}
+
+function traverseNode(node: SceneNode, callback: (node: SceneNode) => void) {
+  if ("children" in node) {
+    node.children.forEach((child) => {
+      traverseNode(child, callback);
+    });
+  }
+  callback(node);
 }
