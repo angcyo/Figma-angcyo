@@ -5,6 +5,7 @@
 </p>
 <button id="extractText">提取文本</button>
 <button id="cancel">关闭</button>
+
 <script>
   document.getElementById("extractText").onclick = () => {
     parent.postMessage({ pluginMessage: { type: "extract-text" } }, "*");
@@ -15,10 +16,15 @@
   };
   // 接收来自插件的消息
   window.onmessage = (event) => {
-    const { type, texts } = event.data.pluginMessage;
+    const { type, texts, data } = event.data.pluginMessage;
     if (type === "selected-text") {
       //使用正则过滤texts中的数据
       var filter = document.getElementById("filter").value;
+      parent.postMessage(
+        { pluginMessage: { type: "putItem", data: filter } },
+        "*"
+      );
+
       var reg = new RegExp(filter, "g");
       const newTexts = [];
       texts.forEach((text, index) => {
@@ -34,6 +40,12 @@
       //document.getElementById("text").select();
       //设置按钮文本
       document.getElementById("extractText").innerText = `${newTexts.length}`;
+    } else if (type === "getItem") {
+      //console.log("getItem↓");
+      //console.log(data);
+      if (data) {
+        document.getElementById("filter").value = data;
+      }
     }
   };
 </script>
@@ -50,7 +62,7 @@
   }
   textarea {
     width: 100%;
-    height: 50%;
+    height: 80%;
     padding: 4px 4px;
     border: 1px solid #ccc;
     border-radius: 4px;

@@ -7,7 +7,11 @@
 // full browser environment (See https://www.figma.com/plugin-docs/how-plugins-run).
 
 // This shows the HTML page in "ui.html".
-figma.showUI(__html__);
+
+figma.showUI(__html__, {
+  height: 444,
+  title: "angcyo v1.0.2",
+});
 
 // Calls to "parent.postMessage" from within the HTML page will trigger this
 // callback. The callback will be passed the "pluginMessage" property of the
@@ -17,12 +21,22 @@ figma.ui.onmessage = (msg) => {
   // your HTML page is to use an object with a "type" property like this.
   if (msg.type === "extract-text") {
     getSelectedNodesText();
+  } else if (msg.type === "putItem") {
+    //保存数据
+    figma.clientStorage.setAsync("angcyo", msg.data).then();
   } else {
     // Make sure to close the plugin when you're done. Otherwise the plugin will
     // keep running, which shows the cancel button at the bottom of the screen.
     figma.closePlugin();
   }
 };
+
+//获取保存的数据
+figma.clientStorage.getAsync("angcyo").then((data) => {
+  //console.log("获取到的数据↓");
+  //console.log(data);
+  figma.ui.postMessage({ type: "getItem", data });
+});
 
 //获取选中节点的文本
 function getSelectedNodesText() {
