@@ -1,0 +1,35 @@
+<p>正则过滤: <input id="filter" value="." /></p>
+<p>
+  <!-- 文本输入域 -->
+  <textarea id="text" placeholder="文本内容..." rows="5" cols="35"></textarea>
+</p>
+<button id="extractText">提取文本</button>
+<button id="cancel">关闭</button>
+<script>
+  document.getElementById("extractText").onclick = () => {
+    parent.postMessage({ pluginMessage: { type: "extract-text" } }, "*");
+  };
+
+  document.getElementById("cancel").onclick = () => {
+    parent.postMessage({ pluginMessage: { type: "cancel" } }, "*");
+  };
+  // 接收来自插件的消息
+  window.onmessage = (event) => {
+    const { type, texts } = event.data.pluginMessage;
+    if (type === "selected-text") {
+      //使用正则过滤texts中的数据
+      var filter = document.getElementById("filter").value;
+      var reg = new RegExp(filter, "g");
+      const newTexts = [];
+      texts.forEach((text, index) => {
+        //文本是否包含过滤内容
+        if (text.match(reg)) {
+          //包含过滤内容，将过滤内容替换为空
+          newTexts.push(text);
+        }
+      });
+
+      document.getElementById("text").innerHTML = newTexts.join("\n\n");
+    }
+  };
+</script>

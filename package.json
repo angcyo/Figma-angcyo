@@ -1,0 +1,16 @@
+{
+  "name": "angcyo",
+  "version": "1.0.0",
+  "description": "还能这么玩, `骚年`我在群里等你! 一个能把IDE写崩溃的蓝神.",
+  "main": "code.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "npm run build -- --watch"
+  },
+  "author": "",
+  "license": "",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.76.0",
+    "typescript": "*"
+  }
+}
