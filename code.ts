@@ -8,9 +8,11 @@
 
 // This shows the HTML page in "ui.html".
 
+const version = "v1.0.4";
+
 figma.showUI(__html__, {
   height: 444,
-  title: "angcyo v1.0.2",
+  title: "angcyo " + version,
 });
 
 // Calls to "parent.postMessage" from within the HTML page will trigger this
@@ -40,15 +42,27 @@ figma.clientStorage.getAsync("angcyo").then((data) => {
 
 //获取选中节点的文本
 function getSelectedNodesText() {
+  if (figma.currentPage.selection.length === 0) {
+    figma.notify("没有选中节点,请先选中节点.");
+    return;
+  } else {
+    figma.notify("正在提取节点文本,请稍等...");
+  }
+
   const nodes: SceneNode[] = [];
   traverse(figma.currentPage.selection, (node) => {
     nodes.push(node);
   });
 
-  const texts = nodes.map((node) => (node as TextNode).characters);
-  console.log("提取到的文本↓");
-  console.log(texts);
-  figma.ui.postMessage({ type: "selected-text", texts });
+  //如果没有选中节点
+  if (nodes.length === 0) {
+    figma.notify("没有选中节点,请先选中节点.");
+  } else {
+    const texts = nodes.map((node) => (node as TextNode).characters);
+    console.log("提取到的文本↓");
+    console.log(texts);
+    figma.ui.postMessage({ type: "selected-text", texts });
+  }
 }
 
 // 递归获取所有节点

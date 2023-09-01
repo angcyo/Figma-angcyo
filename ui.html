@@ -1,4 +1,4 @@
-<p>正则过滤: <input id="filter" value="." /></p>
+<p><span>文本正则过滤: </span><input id="filter" value="." /></p>
 <p>
   <!-- 文本输入域 -->
   <textarea id="text" placeholder="文本内容..." cols="35"></textarea>
@@ -31,11 +31,11 @@
         //文本是否包含过滤内容
         if (text && text.match(reg)) {
           //包含过滤内容，将过滤内容替换为空
-          newTexts.push(text);
+          newTexts.push(`"${text}"`);
         }
       });
 
-      document.getElementById("text").innerHTML = newTexts.join("\n\n");
+      document.getElementById("text").innerHTML = newTexts.join("\n");
       //选中所有文本
       //document.getElementById("text").select();
       //设置按钮文本
@@ -53,6 +53,14 @@
 <style>
   body {
     font-family: sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: #333;
+    margin: 12px 12px;
+    outline: none;
+  }
+  *:focus {
+    outline-color: #30afe6;
   }
   input {
     border: 1px solid #ccc;
