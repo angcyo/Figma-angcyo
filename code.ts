@@ -8,7 +8,7 @@
 
 // This shows the HTML page in "ui.html".
 
-const version = "v1.0.4";
+const version = "v1.0.5";
 
 figma.showUI(__html__, {
   height: 444,
@@ -26,6 +26,18 @@ figma.ui.onmessage = (msg) => {
   } else if (msg.type === "putItem") {
     //保存数据
     figma.clientStorage.setAsync("angcyo", msg.data).then();
+  } else if (msg.type === "extractSvg") {
+    if (figma.currentPage.selection.length === 0) {
+      figma.notify("没有选中节点,请先选中节点.");
+      return;
+    }
+    extractSvg(figma.currentPage.selection[0]);
+  } else if (msg.type === "toAndroidSvg") {
+    if (figma.currentPage.selection.length === 0) {
+      figma.notify("没有选中节点,请先选中节点.");
+      return;
+    }
+    toAndroidSvg(figma.currentPage.selection[0]);
   } else {
     // Make sure to close the plugin when you're done. Otherwise the plugin will
     // keep running, which shows the cancel button at the bottom of the screen.
@@ -82,4 +94,29 @@ function traverseNode(node: SceneNode, callback: (node: SceneNode) => void) {
     });
   }
   callback(node);
+}
+
+// 提取节点svg数据
+function extractSvg(node: SceneNode) {
+  console.log(node.name, node.type);
+  console.log(node);
+  //导出json
+
+  node.exportAsync({ format: "SVG_STRING" }).then((result) => {
+    console.log(result);
+    figma.ui.postMessage({ type: "extractSvg", data: result });
+  });
+}
+
+// 将节点转换为Android svg xml数据
+function toAndroidSvg(node: SceneNode) {
+  console.log(node.name, node.type);
+  console.log(node);
+  //导出json
+
+  node.exportAsync({ format: "SVG_STRING" }).then((result) => {
+    console.log(result);
+    figma.ui.postMessage({ type: "toAndroidSvg", data: result });
+    //svg 数据解析
+  });
 }

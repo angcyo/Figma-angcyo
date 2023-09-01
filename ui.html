@@ -4,16 +4,33 @@
   <textarea id="text" placeholder="文本内容..." cols="35"></textarea>
 </p>
 <button id="extractText">提取文本</button>
-<button id="cancel">关闭</button>
+<button id="extractSvg">提取Svg</button>
+<button id="toAndroidSvg">toAndroidSvg</button>
+<!-- <button id="cancel">关闭</button> -->
 
 <script>
-  document.getElementById("extractText").onclick = () => {
+  click("extractText", () => {
     parent.postMessage({ pluginMessage: { type: "extract-text" } }, "*");
-  };
-
-  document.getElementById("cancel").onclick = () => {
+  });
+  click("cancel", () => {
     parent.postMessage({ pluginMessage: { type: "cancel" } }, "*");
-  };
+  });
+  click("extractSvg", () => {
+    parent.postMessage({ pluginMessage: { type: "extractSvg" } }, "*");
+  });
+  click("toAndroidSvg", () => {
+    parent.postMessage({ pluginMessage: { type: "toAndroidSvg" } }, "*");
+  });
+
+  //点击事件
+  function click(id, callback) {
+    const el = document.getElementById(id);
+    if (!el) {
+      return;
+    }
+    el.onclick = callback;
+  }
+
   // 接收来自插件的消息
   window.onmessage = (event) => {
     const { type, texts, data } = event.data.pluginMessage;
@@ -45,6 +62,60 @@
       //console.log(data);
       if (data) {
         document.getElementById("filter").value = data;
+      }
+    } else if (type === "extractSvg") {
+      if (data) {
+        document.getElementById("text").innerHTML = data;
+      }
+    } else if (type === "toAndroidSvg") {
+      if (data) {
+        //使用svg xml数据创建dom
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(data, "image/svg+xml");
+        //获取svg节点
+        const svg = doc.getElementsByTagName("svg")[0];
+        //转成Android Svg xml
+        const w = svg.getAttribute("width");
+        const h = svg.getAttribute("height");
+        //枚举svg节点下的所有child
+        const children = svg.children;
+        const paths = [];
+        for (let i = 0; i < children.length; i++) {
+          const child = children[i];
+          if (child.tagName === "path") {
+            //获取path的d属性
+            console.log(child);
+            const fillRule = child.getAttribute("fill-rule");
+            const d = child.getAttribute("d");
+            const fill = child.getAttribute("fill");
+
+            var fillType = "nonZero";
+            if (fillRule && fillRule === "evenodd") {
+              fillType = "evenOdd";
+            }
+
+            paths.push(`
+              <path
+                  android:fillColor="${fill}"
+                  android:fillType="${fillType}"
+                  android:pathData="${d}" />
+              `);
+          }
+        }
+
+        var start = `<vector xmlns:android="http://schemas.android.com/apk/res/android"
+            android:width="${w}dp"
+            android:height="${h}dp"
+            android:viewportWidth="${w}"
+            android:viewportHeight="${h}">`;
+        var end = `</vector>`;
+
+        document.getElementById("text").innerHTML =
+          start + paths.join("") + end;
+
+        //释放内存
+        doc = null;
+        parser = null;
       }
     }
   };
