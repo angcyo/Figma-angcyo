@@ -33,6 +33,9 @@
 
   // 接收来自插件的消息
   window.onmessage = (event) => {
+    console.log("收到消息↓");
+    console.log(event.data.pluginMessage);
+
     const { type, texts, data } = event.data.pluginMessage;
     if (type === "selected-text") {
       //使用正则过滤texts中的数据
@@ -52,7 +55,7 @@
         }
       });
 
-      document.getElementById("text").innerHTML = newTexts.join("\n");
+      document.getElementById("text").value = newTexts.join("\n");
       //选中所有文本
       //document.getElementById("text").select();
       //设置按钮文本
@@ -65,7 +68,7 @@
       }
     } else if (type === "extractSvg") {
       if (data) {
-        document.getElementById("text").innerHTML = data;
+        document.getElementById("text").value = data;
       }
     } else if (type === "toAndroidSvg") {
       if (data) {
@@ -110,8 +113,7 @@
             android:viewportHeight="${h}">`;
         var end = `</vector>`;
 
-        document.getElementById("text").innerHTML =
-          start + paths.join("") + end;
+        document.getElementById("text").value = start + paths.join("") + end;
 
         //释放内存
         doc = null;
