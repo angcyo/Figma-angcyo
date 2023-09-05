@@ -8,7 +8,7 @@
 
 // This shows the HTML page in "ui.html".
 
-const version = "v1.0.5";
+const version = "v1.0.6";
 
 figma.showUI(__html__, {
   height: 444,
@@ -70,7 +70,10 @@ function getSelectedNodesText() {
   if (nodes.length === 0) {
     figma.notify("没有选中节点,请先选中节点.");
   } else {
-    const texts = nodes.map((node) => (node as TextNode).characters);
+    //过滤文本节点
+    const texts = nodes
+      .filter((node) => node.type === "TEXT")
+      .map((node) => (node as TextNode).characters);
     console.log("提取到的文本↓");
     console.log(texts);
     figma.ui.postMessage({ type: "selected-text", texts });
