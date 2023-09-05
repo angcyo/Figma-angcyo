@@ -1,6 +1,13 @@
 # 2023-8-31
 
 https://www.figma.com/community/plugin/1278943266377780418
+
+![](https://raw.githubusercontent.com/angcyo/Figma-angcyo/master/gif/1.gif)
+
+![](https://raw.githubusercontent.com/angcyo/Figma-angcyo/master/gif/2.gif)
+
+![](https://raw.githubusercontent.com/angcyo/Figma-angcyo/master/gif/3.gif)
+
 # Readme
 
 Below are the steps to get your plugin running. You can also find instructions at:
