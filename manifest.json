@@ -3,9 +3,9 @@
   "id": "1278943266377780418",
   "api": "1.0.0",
   "main": "code.js",
-  "capabilities": [],
+  "capabilities": ["inspect"],
   "enableProposedApi": false,
-  "editorType": ["figma"],
+  "editorType": ["figma", "dev"],
   "ui": "ui.html",
   "networkAccess": {
     "allowedDomains": ["none"]
