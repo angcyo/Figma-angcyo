@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 2023-9-7
+
+- support svg g
+
 ## 2023-9-6
 
 - support svg line to Android vector
