@@ -81,111 +81,7 @@
         const w = svg.getAttribute("width");
         const h = svg.getAttribute("height");
         //枚举svg节点下的所有child
-        const children = svg.children;
-        const paths = [];
-        for (let i = 0; i < children.length; i++) {
-          const child = children[i];
-
-          //标准属性
-          const fillRule = child.getAttribute("fill-rule");
-          const x = parseFloatStr(child.getAttribute("x"));
-          const y = parseFloatStr(child.getAttribute("y"));
-          const r = parseFloatStr(child.getAttribute("r"));
-          const cx = parseFloatStr(child.getAttribute("cx"));
-          const cy = parseFloatStr(child.getAttribute("cy"));
-          const width = parseFloatStr(child.getAttribute("width"));
-          const height = parseFloatStr(child.getAttribute("height"));
-          const rx = parseFloatStr(child.getAttribute("rx")) || r;
-          const ry = parseFloatStr(child.getAttribute("ry")) || rx;
-          const fill = colorToHex(child.getAttribute("fill"));
-          const stroke = colorToHex(child.getAttribute("stroke"));
-
-          var fillSvg = "";
-          if (fill) {
-            var fillType = "nonZero";
-            if (fillRule && fillRule === "evenodd") {
-              fillType = "evenOdd";
-            }
-            fillSvg = `android:fillColor="${fill}" android:fillType="${fillType}"`;
-          }
-          var strokeSvg = "";
-          if (stroke) {
-            strokeSvg = `android:strokeColor="${stroke}" android:strokeWidth="1"`;
-          }
-
-          if (child.tagName === "line") {
-            const x1 = parseFloatStr(child.getAttribute("x1"));
-            const x2 = parseFloatStr(child.getAttribute("x2"));
-            const y1 = parseFloatStr(child.getAttribute("y1"));
-            const y2 = parseFloatStr(child.getAttribute("y2"));
-            var pathSvg = `android:pathData="M${x1},${y1}L${x2},${y2}"`;
-            paths.push(`
-              <path ${fillSvg} ${strokeSvg} ${pathSvg} />`);
-          } else if (child.tagName === "path") {
-            //获取path的d属性
-            console.log(child);
-            const d = child.getAttribute("d");
-
-            var fillType = "nonZero";
-            if (fillRule && fillRule === "evenodd") {
-              fillType = "evenOdd";
-            }
-
-            var pathSvg = `android:pathData="${d}"`;
-
-            paths.push(`
-              <path ${fillSvg} ${strokeSvg} ${pathSvg} /> `);
-          } else if (child.tagName === "rect") {
-            //获取path的d属性
-            console.log(child);
-
-            var pathSvg = "";
-            if (rx && ry) {
-              const r = x + width;
-              const b = y + height;
-              pathSvg = `android:pathData="M${x + rx},${y}h${
-                width - rx * 2
-              }Q${r},${y} ${r},${y + ry}v${height - ry * 2}Q${r},${b} ${
-                r - rx
-              },${b}h-${width - rx * 2}Q${x},${b} ${x},${b - ry}v-${
-                height - ry * 2
-              }Q${x},${y} ${x + rx},${y}z"`;
-            } else {
-              pathSvg = `android:pathData="M${x},${y}h${width}v${height}h-${width}z"`;
-            }
-
-            paths.push(`
-              <path ${fillSvg} ${strokeSvg} ${pathSvg} />`);
-          } else if (
-            child.tagName === "ellipse" ||
-            child.tagName === "circle"
-          ) {
-            const width = rx * 2;
-            const height = ry * 2;
-            const kappa = 0.5522848; // 4 * ((√(2) - 1) / 3)
-            const ox = (width / 2.0) * kappa; // control point offset horizontal
-            const oy = (height / 2.0) * kappa; // control point offset vertical
-            //const xe = cx + width / 2.0; // x-end
-            //const ye = cy + height / 2.0; // y-end
-
-            var pathSvg = "";
-            pathSvg = `android:pathData="M${cx - width / 2},${cy}C${
-              cx - width / 2
-            },${cy - oy} ${cx - ox},${cy - height / 2} ${cx},${
-              cy - height / 2
-            }C${cx + ox},${cy - height / 2} ${cx + width / 2},${cy - oy} ${
-              cx + width / 2
-            },${cy}C${cx + width / 2},${cy + oy} ${cx + ox},${
-              cy + height / 2
-            } ${cx},${cy + height / 2}C${cx - ox},${cy + height / 2} ${
-              cx - width / 2
-            },${cy + oy} ${cx - width / 2},${cy}"
-            `;
-
-            paths.push(`
-            <path ${fillSvg} ${strokeSvg} ${pathSvg} />`);
-          }
-        }
+        const paths = tagToAndroidPath(svg);
 
         var start = `<vector xmlns:android="http://schemas.android.com/apk/res/android"
             android:width="${w}dp"
@@ -193,7 +89,6 @@
             android:viewportWidth="${w}"
             android:viewportHeight="${h}">`;
         var end = `</vector>`;
-
         document.getElementById("text").value = start + paths.join("") + end;
 
         //释放内存
@@ -205,8 +100,6 @@
 
   //将常用的颜色字符串转成hex颜色值
   function colorToHex(color) {
-    console.log("colorToHex↓");
-    console.log(color);
     if (color === null || color === undefined) {
       return undefined;
     }
@@ -278,6 +171,122 @@
   //保留3位小数点
   function toFixed(num, de = 3) {
     return parseFloat(num.toFixed(de));
+  }
+
+  //将svg标签转成Android的path标签
+  function tagToAndroidPath(tag) {
+    var paths = [];
+    const child = tag;
+
+    //标准属性
+    const fillRule = child.getAttribute("fill-rule");
+    const x = parseFloatStr(child.getAttribute("x"));
+    const y = parseFloatStr(child.getAttribute("y"));
+    const r = parseFloatStr(child.getAttribute("r"));
+    const cx = parseFloatStr(child.getAttribute("cx"));
+    const cy = parseFloatStr(child.getAttribute("cy"));
+    const width = parseFloatStr(child.getAttribute("width"));
+    const height = parseFloatStr(child.getAttribute("height"));
+    const rx = parseFloatStr(child.getAttribute("rx")) || r;
+    const ry = parseFloatStr(child.getAttribute("ry")) || rx;
+    const fill = colorToHex(child.getAttribute("fill"));
+    const stroke = colorToHex(child.getAttribute("stroke"));
+
+    var fillSvg = "";
+    if (fill) {
+      var fillType = "nonZero";
+      if (fillRule && fillRule === "evenodd") {
+        fillType = "evenOdd";
+      }
+      fillSvg = `android:fillColor="${fill}" android:fillType="${fillType}"`;
+    }
+    var strokeSvg = "";
+    if (stroke) {
+      strokeSvg = `android:strokeColor="${stroke}" android:strokeWidth="1"`;
+    }
+
+    if (child.tagName === "line") {
+      const x1 = parseFloatStr(child.getAttribute("x1"));
+      const x2 = parseFloatStr(child.getAttribute("x2"));
+      const y1 = parseFloatStr(child.getAttribute("y1"));
+      const y2 = parseFloatStr(child.getAttribute("y2"));
+      var pathSvg = `android:pathData="M${x1},${y1}L${x2},${y2}"`;
+      paths.push(`
+              <path ${fillSvg} ${strokeSvg} ${pathSvg} />`);
+    } else if (child.tagName === "path") {
+      //获取path的d属性
+      console.log(child);
+      const d = child.getAttribute("d");
+
+      var fillType = "nonZero";
+      if (fillRule && fillRule === "evenodd") {
+        fillType = "evenOdd";
+      }
+
+      var pathSvg = `android:pathData="${d}"`;
+
+      paths.push(`
+              <path ${fillSvg} ${strokeSvg} ${pathSvg} /> `);
+    } else if (child.tagName === "rect") {
+      //获取path的d属性
+      console.log(child);
+
+      var pathSvg = "";
+      if (rx && ry) {
+        const r = x + width;
+        const b = y + height;
+        pathSvg = `android:pathData="M${x + rx},${y}h${
+          width - rx * 2
+        }Q${r},${y} ${r},${y + ry}v${height - ry * 2}Q${r},${b} ${
+          r - rx
+        },${b}h-${width - rx * 2}Q${x},${b} ${x},${b - ry}v-${
+          height - ry * 2
+        }Q${x},${y} ${x + rx},${y}z"`;
+      } else {
+        pathSvg = `android:pathData="M${x},${y}h${width}v${height}h-${width}z"`;
+      }
+
+      paths.push(`
+              <path ${fillSvg} ${strokeSvg} ${pathSvg} />`);
+    } else if (child.tagName === "ellipse" || child.tagName === "circle") {
+      const width = rx * 2;
+      const height = ry * 2;
+      const kappa = 0.5522848; // 4 * ((√(2) - 1) / 3)
+      const ox = (width / 2.0) * kappa; // control point offset horizontal
+      const oy = (height / 2.0) * kappa; // control point offset vertical
+      //const xe = cx + width / 2.0; // x-end
+      //const ye = cy + height / 2.0; // y-end
+
+      var pathSvg = "";
+      pathSvg = `android:pathData="M${cx - width / 2},${cy}C${cx - width / 2},${
+        cy - oy
+      } ${cx - ox},${cy - height / 2} ${cx},${cy - height / 2}C${cx + ox},${
+        cy - height / 2
+      } ${cx + width / 2},${cy - oy} ${cx + width / 2},${cy}C${
+        cx + width / 2
+      },${cy + oy} ${cx + ox},${cy + height / 2} ${cx},${cy + height / 2}C${
+        cx - ox
+      },${cy + height / 2} ${cx - width / 2},${cy + oy} ${cx - width / 2},${cy}"
+            `;
+
+      paths.push(`
+            <path ${fillSvg} ${strokeSvg} ${pathSvg} />`);
+    } else if (child.tagName === "g" || child.tagName === "svg") {
+      const children = child.children;
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        const array = tagToAndroidPath(child);
+        if (array) {
+          paths = paths.concat(array);
+        }
+      }
+    } else {
+      const msg = "不支持的SVG标签: " + child.tagName;
+      console.log(msg);
+      parent.postMessage({ pluginMessage: { type: "notify", data: msg } }, "*");
+    }
+
+    return paths;
   }
 </script>
 <!-- 样式 -->

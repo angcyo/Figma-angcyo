@@ -8,7 +8,7 @@
 
 // This shows the HTML page in "ui.html".
 
-const version = "v1.1.0";
+const version = "v1.1.1";
 
 figma.showUI(__html__, {
   height: 444,
@@ -38,6 +38,8 @@ figma.ui.onmessage = (msg) => {
       return;
     }
     toAndroidSvg(figma.currentPage.selection[0]);
+  } else if (msg.type === "notify") {
+    figma.notify(msg.data);
   } else {
     // Make sure to close the plugin when you're done. Otherwise the plugin will
     // keep running, which shows the cancel button at the bottom of the screen.
