@@ -3,9 +3,9 @@
   <!-- 文本输入域 -->
   <textarea id="text" placeholder="文本内容..." cols="35"></textarea>
 </p>
-<button id="extractText">提取文本</button>
-<button id="extractSvg">提取Svg</button>
-<button id="toAndroidSvg">toAndroidSvg</button>
+<button id="extractText">提取节点文本</button>
+<button id="extractSvg">提取节点Svg</button>
+<button id="toAndroidSvg">节点转AndroidSvg</button>
 <!-- 输入框内容直接转AndroidSvg -->
 <button id="convertAndroidSvg">内容转AndroidSvg</button>
 <!-- <button id="cancel">关闭</button> -->
@@ -304,6 +304,7 @@
           paths = paths.concat(array);
         }
       }
+    } else if (child.tagName === "defs") {
     } else {
       const msg = "不支持的SVG标签: " + child.tagName;
       console.log(msg);
