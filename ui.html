@@ -6,6 +6,8 @@
 <button id="extractText">提取文本</button>
 <button id="extractSvg">提取Svg</button>
 <button id="toAndroidSvg">toAndroidSvg</button>
+<!-- 输入框内容直接转AndroidSvg -->
+<button id="convertAndroidSvg">内容转AndroidSvg</button>
 <!-- <button id="cancel">关闭</button> -->
 
 <script>
@@ -20,6 +22,10 @@
   });
   click("toAndroidSvg", () => {
     parent.postMessage({ pluginMessage: { type: "toAndroidSvg" } }, "*");
+  });
+  click("convertAndroidSvg", () => {
+    const text = document.getElementById("text").value;
+    parseSvg(text);
   });
 
   //点击事件
@@ -71,32 +77,42 @@
         document.getElementById("text").value = data;
       }
     } else if (type === "toAndroidSvg") {
-      if (data) {
-        //使用svg xml数据创建dom
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(data, "image/svg+xml");
-        //获取svg节点
-        const svg = doc.getElementsByTagName("svg")[0];
-        //转成Android Svg xml
-        const w = svg.getAttribute("width");
-        const h = svg.getAttribute("height");
-        //枚举svg节点下的所有child
-        const paths = tagToAndroidPath(svg);
+      parseSvg(data);
+    }
+  };
 
-        var start = `<vector xmlns:android="http://schemas.android.com/apk/res/android"
+  // 解析svg字符串
+  function parseSvg(data) {
+    if (data) {
+      //使用svg xml数据创建dom
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(data, "image/svg+xml");
+      //获取svg节点
+      const svg = doc.getElementsByTagName("svg")[0];
+      //转成Android Svg xml
+      const w = svg.getAttribute("width");
+      const h = svg.getAttribute("height");
+      //枚举svg节点下的所有child
+      const paths = tagToAndroidPath(svg);
+
+      var start = `<vector xmlns:android="http://schemas.android.com/apk/res/android"
             android:width="${w}dp"
             android:height="${h}dp"
             android:viewportWidth="${w}"
             android:viewportHeight="${h}">`;
-        var end = `</vector>`;
-        document.getElementById("text").value = start + paths.join("") + end;
+      var end = `</vector>`;
+      document.getElementById("text").value = start + paths.join("") + end;
 
-        //释放内存
-        doc = null;
-        parser = null;
-      }
+      //释放内存
+      doc = null;
+      parser = null;
+    } else {
+      parent.postMessage(
+        { pluginMessage: { type: "notify", data: "no data" } },
+        "*"
+      );
     }
-  };
+  }
 
   //将常用的颜色字符串转成hex颜色值
   function colorToHex(color) {
@@ -310,7 +326,7 @@
   }
   textarea {
     width: 100%;
-    height: 80%;
+    height: 74%;
     padding: 4px 4px;
     border: 1px solid #ccc;
     border-radius: 4px;
