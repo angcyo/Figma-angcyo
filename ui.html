@@ -89,17 +89,25 @@
       var doc = parser.parseFromString(data, "image/svg+xml");
       //获取svg节点
       const svg = doc.getElementsByTagName("svg")[0];
+      const viewBox = svg.getAttribute("viewBox");
       //转成Android Svg xml
       const w = svg.getAttribute("width");
       const h = svg.getAttribute("height");
       //枚举svg节点下的所有child
       const paths = tagToAndroidPath(svg);
 
+      var vw = w;
+      var vh = h;
+      if (viewBox) {
+        vw = viewBox.split(" ")[2];
+        vh = viewBox.split(" ")[3];
+      }
+
       var start = `<vector xmlns:android="http://schemas.android.com/apk/res/android"
-            android:width="${w}dp"
-            android:height="${h}dp"
-            android:viewportWidth="${w}"
-            android:viewportHeight="${h}">`;
+            android:width="${vw}dp"
+            android:height="${vh}dp"
+            android:viewportWidth="${vw}"
+            android:viewportHeight="${vh}">`;
       var end = `</vector>`;
       document.getElementById("text").value = start + paths.join("") + end;
 
@@ -208,7 +216,7 @@
     const fill = colorToHex(child.getAttribute("fill"));
     const stroke = colorToHex(child.getAttribute("stroke"));
 
-    var fillSvg = "";
+    var fillSvg = `android:fillColor="#333333" android:fillType="evenOdd"`;
     if (fill) {
       var fillType = "nonZero";
       if (fillRule && fillRule === "evenodd") {
