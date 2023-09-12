@@ -1,4 +1,7 @@
 # ChangeLog
+## 2023-09-12
+
+* fix svg rect
 
 ## 2023-9-11
 
