@@ -185,9 +185,9 @@
   }
 
   //将数字字符串转换成浮点型数字
-  function parseFloatStr(str) {
+  function parseFloatStr(str, def = undefined) {
     if (str === null || str === undefined) {
-      return undefined;
+      return def;
     }
     return parseFloat(str);
   }
@@ -204,8 +204,8 @@
 
     //标准属性
     const fillRule = child.getAttribute("fill-rule");
-    const x = parseFloatStr(child.getAttribute("x"));
-    const y = parseFloatStr(child.getAttribute("y"));
+    const x = parseFloatStr(child.getAttribute("x"), 0);
+    const y = parseFloatStr(child.getAttribute("y"), 0);
     const r = parseFloatStr(child.getAttribute("r"));
     const cx = parseFloatStr(child.getAttribute("cx"));
     const cy = parseFloatStr(child.getAttribute("cy"));
@@ -230,10 +230,10 @@
     }
 
     if (child.tagName === "line") {
-      const x1 = parseFloatStr(child.getAttribute("x1"));
-      const x2 = parseFloatStr(child.getAttribute("x2"));
-      const y1 = parseFloatStr(child.getAttribute("y1"));
-      const y2 = parseFloatStr(child.getAttribute("y2"));
+      const x1 = parseFloatStr(child.getAttribute("x1"), 0);
+      const x2 = parseFloatStr(child.getAttribute("x2"), 0);
+      const y1 = parseFloatStr(child.getAttribute("y1"), 0);
+      const y2 = parseFloatStr(child.getAttribute("y2"), 0);
       var pathSvg = `android:pathData="M${x1},${y1}L${x2},${y2}"`;
       paths.push(`
               <path ${fillSvg} ${strokeSvg} ${pathSvg} />`);
