@@ -8,7 +8,7 @@
 
 // This shows the HTML page in "ui.html".
 
-const version = "v1.1.4";
+const version = "v1.1.5";
 
 figma.showUI(__html__, {
   height: 444,
