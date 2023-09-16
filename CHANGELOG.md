@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 2023-09-16
+
+* fix default fill style
+
 ## 2023-9-14
 
 - fix rect circle
